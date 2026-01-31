@@ -89,7 +89,7 @@ No standard library is used.
 ---
 
 # Phase 1 – Architecture & Boot Process
-![Screenshot](architecture_phase_1.png)
+![Screenshot](architecture_phase_1.jpg)
 
 > This phase explains **why every component exists**, **the order of execution**, and **how control flows from power-on to the kernel**.
 
