@@ -1,4 +1,4 @@
-# 🧠 Minimal x86_64 Operating System (Learning Project)
+# x86_64 Operating System
 
 A **from-scratch educational operating system** built to deeply understand how a computer boots, how a kernel is built and loaded, and how low-level hardware (CPU, memory, VGA) is accessed directly.
 
@@ -89,6 +89,7 @@ No standard library is used.
 ---
 
 # Phase 1 – Architecture & Boot Process
+![Screenshot](architecture_phase_1.png)
 
 > This phase explains **why every component exists**, **the order of execution**, and **how control flows from power-on to the kernel**.
 
