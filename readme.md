@@ -194,38 +194,6 @@ GRUB solves all of this.
 
 ---
 
-### What GRUB Actually Does
-
-- Loads `kernel.bin` into RAM
-- Switches CPU into **64-bit long mode**
-- Sets up:
-  - Stack
-  - Memory map
-  - CPU state
-- Jumps to `_start`
-
-Your assembly code assumes the CPU is already prepared.
-
----
-
-### Why `grub.cfg` Can Be Minimal or Empty
-
-In this project:
-
-- GRUB is used only as a **loader**, not a menu system
-- A minimal config is enough:
-
-```cfg
-menuentry "My OS" {
-    multiboot2 /boot/kernel.bin
-    boot
-}
-```
-
-GRUB is not replaced by `boot.asm` — it **executes before it**.
-
----
-
 ## 🧠 Kernel Execution Flow
 
 ### 1️⃣ CPU jumps to `_start`
@@ -255,14 +223,6 @@ Now you are officially **inside your OS**.
 
 ## 🖥️ VGA Text Mode – How Output Works
 
-### Is VGA "a screen"?
-
-No.
-
-VGA is **memory-mapped hardware**.
-
----
-
 ### VGA Memory
 
 ```text
@@ -274,38 +234,7 @@ Address: 0xB8000
   - Byte 2: Color attribute
 
 Writing to this memory **is writing to the screen**.
-
----
-
-### Why Multiple Monitors Don’t Matter Here
-
-In text mode:
-
-- VGA maps to **one primary display buffer**
-- GPU handles routing the signal to monitors
-- The kernel just writes memory
-
-Modern multi-monitor logic exists **far above** this level.
-
-You are bypassing drivers and window systems entirely.
-
----
-
-## 🧩 Where VGA Lives (Hardware Answer)
-
-Historically:
-
-- VGA was a **separate controller**
-
-Modern systems:
-
-- VGA logic is inside the **GPU**
-- Memory is mapped into system address space
-
-It is **not RAM** — it is hardware responding to memory writes.
-
----
-
+---.
 # Phase 2 – Kernel Core (🚧 Planned)
 
 > To be implemented and documented.
