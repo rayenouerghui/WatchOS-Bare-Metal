@@ -89,7 +89,9 @@ No standard library is used.
 ---
 
 # Phase 1 – Architecture & Boot Process
-![Screenshot](architecture_phase_1.jpg)
+<p align="center">
+  <img src="architecture_phase_1.jpg" width="350" style="transform: rotate(90deg);">
+</p>
 
 > This phase explains **why every component exists**, **the order of execution**, and **how control flows from power-on to the kernel**.
 
