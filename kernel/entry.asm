@@ -1,21 +1,13 @@
-SECTION .multiboot
-align 8
-multiboot_header:
-    dd 0xe85250d6        ; multiboot2 magic
-    dd 0                 ; architecture (i386)
-    dd header_end - multiboot_header
-    dd -(0xe85250d6 + 0 + (header_end - multiboot_header))
+section .bss
+align 16
+stack: resb 65536        ; 64KB stack
 
-header_end:
-BITS 64
-
+section .text
 global _start
-
-extern stack_top
 extern kernel_main
 
 _start:
-    mov rsp, stack_top
+    lea rsp, [stack + 65536] ; top of stack
     call kernel_main
 
 hang:

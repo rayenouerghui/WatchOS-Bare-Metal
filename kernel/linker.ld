@@ -4,10 +4,15 @@ SECTIONS
 {
     . = 0x100000; /* load address 1MB */
 
-    .text : { *(.text) }
+    .text : { *(.multiboot) *(.text) }   /* include multiboot header first */
     .rodata : { *(.rodata) }
     .data : { *(.data) }
     .bss : { *(.bss COMMON) }
 
-    stack_top = . + 0x10000; /* stack 64KB */
+    heap_start = .;
+    .heap : { *(.heap) }
+    heap_end = heap_start + 0x10000; /* 64KB heap */
+
+    stack_top = heap_end + 0x10000;  /* stack 64KB */
 }
+

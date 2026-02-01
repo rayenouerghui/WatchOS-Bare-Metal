@@ -1,26 +1,41 @@
-// kernel.c
-// This is our first C code running in kernel mode
+#include <stdint.h>
+#include <stddef.h>
+#include "allocator.h"
 
-void kernel_main() {
-    // VGA text mode buffer starts at address 0xB8000
-    volatile char* video_memory = (volatile char*) 0xB8000;
+/* .data section (initialized global) */
+uint32_t kernel_version = 1;
 
-    // Text we want to display
-    const char* message = "Kernel started successfully";
+/* .bss section (uninitialized global) */
+uint32_t boot_count;
 
-    // Color: light grey (0x0F) on black background
-    char color = 0x0F;
+/* VGA text buffer */
+static volatile char* const VGA = (char*)0xB8000;
 
-    int i = 0;
+void kernel_main(void) {
+    /* Show memory sections first */
+    VGA[0] = 'D';  VGA[1] = 0x0F;  // .data exists
+    VGA[2] = 'B';  VGA[3] = 0x0F;  // .bss exists
+    VGA[4] = 'K';  VGA[5] = 0x0F;  // kernel running
 
-    // Write each character to video memory
-    while (message[i] != '\0') {
-        video_memory[i * 2] = message[i];      // Character
-        video_memory[i * 2 + 1] = color;       // Color attribute
-        i++;
+    /* --- Phase 2.2: dynamic memory test --- */
+    uint8_t* ptr1 = (uint8_t*)kmalloc(16);   // allocate 16 bytes
+    uint8_t* ptr2 = (uint8_t*)kmalloc(32);   // allocate 32 bytes
+
+    /* fill memory */
+    for (int i = 0; i < 16; i++) ptr1[i] = 'A' + i;
+    for (int i = 0; i < 32; i++) ptr2[i] = 'a' + i;
+
+    /* copy first few bytes of ptr1 and ptr2 to VGA */
+    for (int i = 0; i < 8; i++) {
+        VGA[6 + i*2] = ptr1[i];    // char
+        VGA[6 + i*2 + 1] = 0x0F;   // color
+    }
+    for (int i = 0; i < 8; i++) {
+        VGA[22 + i*2] = ptr2[i];   // char
+        VGA[22 + i*2 + 1] = 0x0F;  // color
     }
 
-    // Stop here forever
-    while (1) {}
+    /* halt */
+    while (1) { __asm__("hlt"); }
 }
 

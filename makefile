@@ -1,54 +1,66 @@
-# Makefile for Watch OS
-# Phase 1.3
+# Makefile for Watch-OS
+# Build kernel, allocator, and bootable ISO
 
-# Tools
-ASM = nasm
-CC  = gcc
-LD  = ld
-GRUB_MKRESCUE = grub-mkrescue
+# Compiler and tools
+CC      = gcc
+ASM     = nasm
+LD      = ld
+GRUBMK  = grub-mkrescue
+QEMU    = qemu-system-x86_64
 
-# Paths
-KERNEL_SRC = kernel
-BUILD_DIR  = build
-ISO_DIR    = iso
+# Flags
+CFLAGS  = -m64 -ffreestanding -O2 -Wall -Wextra -I./kernel
+ASMFLAGS = -f elf64
+LDFLAGS  = -n -T kernel/linker.ld
+
+# Directories
+SRC     = kernel
+BUILD   = build
+ISO     = iso
+BOOT    = $(ISO)/boot
 
 # Files
-ENTRY = $(KERNEL_SRC)/entry.asm
-KERNEL_C = $(KERNEL_SRC)/kernel.c
-LINKER = $(KERNEL_SRC)/linker.ld
-KERNEL_OBJ = $(BUILD_DIR)/entry.o $(BUILD_DIR)/kernel.o
-KERNEL_BIN = $(BUILD_DIR)/kernel.bin
-ISO_FILE = watch-os.iso
-
-# Colors for print
-RED=\033[0;31m
-NC=\033[0m
+KERNEL_BIN = $(BUILD)/kernel.bin
+OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o
+ISO_FILE   = watch-os.iso
 
 # Default target
-all: iso
+all: $(ISO_FILE)
 
-# Assemble
-$(BUILD_DIR)/entry.o: $(ENTRY)
-	@mkdir -p $(BUILD_DIR)
-	$(ASM) -f elf64 $< -o $@
+# Compile assembly
+$(BUILD)/entry.o: $(SRC)/entry.asm | $(BUILD)
+	$(ASM) $(ASMFLAGS) $< -o $@
 
-# Compile
-$(BUILD_DIR)/kernel.o: $(KERNEL_C)
-	@mkdir -p $(BUILD_DIR)
-	$(CC) -m64 -ffreestanding -c $< -o $@
+# Compile kernel C code
+$(BUILD)/kernel.o: $(SRC)/kernel.c $(SRC)/allocator.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Link
-$(KERNEL_BIN): $(KERNEL_OBJ) $(LINKER)
-	$(LD) -n -T $(LINKER) -o $@ $(KERNEL_OBJ)
+# Compile allocator C code
+$(BUILD)/allocator.o: $(SRC)/allocator.c $(SRC)/allocator.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Prepare ISO
-iso: $(KERNEL_BIN)
-	@mkdir -p $(ISO_DIR)/boot/grub
-	cp $(KERNEL_BIN) $(ISO_DIR)/boot/kernel.bin
-	cp boot/grub.cfg $(ISO_DIR)/boot/grub/grub.cfg
-	$(GRUB_MKRESCUE) -o $(ISO_FILE) $(ISO_DIR)
+# Link kernel
+$(KERNEL_BIN): $(OBJS) | $(BUILD)
+	$(LD) $(LDFLAGS) $(OBJS) -o $(KERNEL_BIN)
 
-# Clean
+# Prepare ISO folder and copy files
+$(ISO_FILE): $(KERNEL_BIN)
+	mkdir -p $(BOOT)/grub
+	cp $(KERNEL_BIN) $(BOOT)/
+	cp boot/grub.cfg $(BOOT)/grub/
+	$(GRUBMK) -o $(ISO_FILE) $(ISO)
+
+# Create build directory if it doesn't exist
+$(BUILD):
+	mkdir -p $(BUILD)
+
+# Clean build and ISO files
 clean:
-	rm -rf $(BUILD_DIR) $(ISO_DIR) $(ISO_FILE)
-	@echo "${RED}Cleaned build files${NC}"
+	rm -rf $(BUILD) $(ISO_FILE) $(ISO)
+
+# Run QEMU
+run: $(ISO_FILE)
+	$(QEMU) -cdrom $(ISO_FILE)
+
+.PHONY: all clean run
+
