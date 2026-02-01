@@ -287,7 +287,7 @@ Every file exists to answer **"why"**, not just **"how"**.
 
 ## 🧑‍💻 Author
 
-**Rayen Ouer**  
+**Mohamed Rayen Ouerghui**  
 IT Engineering Student – Low-Level Systems & OS Internals
 
 ---
