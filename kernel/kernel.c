@@ -1,41 +1,55 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "allocator.h"
 
-/* .data section (initialized global) */
+#include "allocator.h"
+#include "kprint.h"
+#include "panic.h"
+#include "idt.h"
+
+/* .data section */
 uint32_t kernel_version = 1;
 
-/* .bss section (uninitialized global) */
+/* .bss section */
 uint32_t boot_count;
 
-/* VGA text buffer */
-static volatile char* const VGA = (char*)0xB8000;
-
 void kernel_main(void) {
-    /* Show memory sections first */
-    VGA[0] = 'D';  VGA[1] = 0x0F;  // .data exists
-    VGA[2] = 'B';  VGA[3] = 0x0F;  // .bss exists
-    VGA[4] = 'K';  VGA[5] = 0x0F;  // kernel running
+    /* Initialize VGA + logging */
+    kprint_init();
 
-    /* --- Phase 2.2: dynamic memory test --- */
-    uint8_t* ptr1 = (uint8_t*)kmalloc(16);   // allocate 16 bytes
-    uint8_t* ptr2 = (uint8_t*)kmalloc(32);   // allocate 32 bytes
+    /* Phase 3.1: Initialize IDT EARLY */
+    kprint_info("Initializing IDT...");
+    idt_init();
+    kprint_ok("IDT loaded successfully");
 
-    /* fill memory */
+    /* Boot messages */
+    kprint_ok("WatchOS Kernel v1.0 booted successfully");
+    kprint_info("Initializing kernel subsystems...");
+
+    /* Memory sections */
+    kprint_info(".data section initialized");
+    kprint_info(".bss section initialized");
+
+    /* Phase 2: dynamic memory test */
+    kprint_info("Testing dynamic memory allocation...");
+
+    uint8_t* ptr1 = (uint8_t*)kmalloc(16);
+    uint8_t* ptr2 = (uint8_t*)kmalloc(32);
+
+    if (!ptr1 || !ptr2) {
+        panic("Memory allocation failed!");
+    }
+
     for (int i = 0; i < 16; i++) ptr1[i] = 'A' + i;
     for (int i = 0; i < 32; i++) ptr2[i] = 'a' + i;
 
-    /* copy first few bytes of ptr1 and ptr2 to VGA */
-    for (int i = 0; i < 8; i++) {
-        VGA[6 + i*2] = ptr1[i];    // char
-        VGA[6 + i*2 + 1] = 0x0F;   // color
-    }
-    for (int i = 0; i < 8; i++) {
-        VGA[22 + i*2] = ptr2[i];   // char
-        VGA[22 + i*2 + 1] = 0x0F;  // color
-    }
+    kprint_ok("Memory allocation test passed");
+    kprint_info("Allocated 48 bytes total");
 
-    /* halt */
-    while (1) { __asm__("hlt"); }
+    kprint_ok("All systems operational");
+    kprint_info("Kernel idle - halting CPU");
+
+    while (1) {
+        __asm__ volatile ("hlt");
+    }
 }
 

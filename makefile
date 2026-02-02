@@ -21,7 +21,8 @@ BOOT    = $(ISO)/boot
 
 # Files
 KERNEL_BIN = $(BUILD)/kernel.bin
-OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o
+OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
+             $(BUILD)/vga.o $(BUILD)/kprint.o $(BUILD)/panic.o
 ISO_FILE   = watch-os.iso
 
 # Default target
@@ -37,6 +38,18 @@ $(BUILD)/kernel.o: $(SRC)/kernel.c $(SRC)/allocator.h | $(BUILD)
 
 # Compile allocator C code
 $(BUILD)/allocator.o: $(SRC)/allocator.c $(SRC)/allocator.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile VGA driver
+$(BUILD)/vga.o: $(SRC)/vga.c $(SRC)/vga.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile kernel print system
+$(BUILD)/kprint.o: $(SRC)/kprint.c $(SRC)/kprint.h $(SRC)/vga.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile panic handler
+$(BUILD)/panic.o: $(SRC)/panic.c $(SRC)/panic.h $(SRC)/vga.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link kernel
@@ -63,4 +76,5 @@ run: $(ISO_FILE)
 	$(QEMU) -cdrom $(ISO_FILE)
 
 .PHONY: all clean run
+
 
