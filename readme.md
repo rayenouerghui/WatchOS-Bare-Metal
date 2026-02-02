@@ -220,12 +220,39 @@ At this point:
 Now you are officially **inside your OS**.
 
 ---
+
+## 🖥️ VGA Text Mode – How Output Works
+
+### VGA Memory
+
+```text
+Address: 0xB8000
+```
+
+- Each character cell = 2 bytes
+  - Byte 1: ASCII character
+  - Byte 2: Color attribute
+
+Writing to this memory **is writing to the screen**.
+---
+
 # Phase 2 – Kernel Core Services
-<p align="center"> <img src="architecture_phase_2.jpg" width="500"> </p>
+<p align="center">
+  <img src="architecture_phase_2.jpg" width="500">
+</p>
 
-> This phase transforms the kernel from a “booting program” into a structured, debuggable system by introducing core services required by all real operating systems.
+This phase transforms the kernel from a "booting program" into a structured, debuggable system by introducing core services required by all real operating systems.
 
-### High-Level View
+## 🎯 Phase Goals
+
+- Learn kernel modularity and clean abstraction layers
+- Implement hardware interaction without BIOS help
+- Build dynamic memory management from scratch
+- Handle fatal errors gracefully (no undefined behavior)
+
+---
+
+## 🏗️ Architecture Overview
 
 ```text
 kernel_main()
@@ -249,116 +276,127 @@ kernel_main()
 | VGA Text Mode    |
 | (vga.c)          |
 +------------------+
-🧩 Kernel Subsystems
-🖥️ VGA Driver (vga.c / vga.h)
-Purpose
+```
 
-Directly write characters to VGA text memory (0xB8000)
+The key principle: Higher layers should not know hardware details. If you change VGA to serial output, only vga.c should change.
 
-Handle cursor position and color attributes
+---
 
-Why it exists
+## 🧩 Kernel Subsystems
 
-After boot, BIOS services are unavailable
+### 🖥️ VGA Driver (vga.c / vga.h)
 
-The kernel must interact directly with hardware
+**What it does:**
+- Writes characters directly to VGA memory (0xB8000)
+- Manages cursor position and color attributes
+- Initializes the 80×25 text mode
 
-This module is the lowest-level output layer and is hardware-specific.
+**Why it exists:**
+- After boot, BIOS services disappear
+- The kernel must talk to hardware directly
+- This is the lowest-level output layer, hardware-specific
 
-📝 Kernel Print System (kprint.c / kprint.h)
-Purpose
+---
 
-Provide readable kernel output
+### 📝 Kernel Print System (kprint.c / kprint.h)
 
-Hide VGA hardware details from the rest of the kernel
+**What it does:**
+- Provides a clean printing interface to the kernel
+- Hides VGA details behind simple functions
 
-Example:
-
+**Example:**
+```c
 kprint("Kernel initialized\n");
-Why it exists
+kprint("Memory: %d MB available\n", total_memory);
+```
 
-Prevents duplicated VGA logic
+**Why it exists:**
+- Prevents duplicated VGA code everywhere
+- Centralizes output behavior
+- Acts as the kernel's logging interface
 
-Centralizes output behavior
+---
 
-This module represents the kernel’s logging interface.
+### 💥 Panic System (panic.c / panic.h)
 
-💥 Panic System (panic.c / panic.h)
-Purpose
+**What it does:**
+- Handles unrecoverable kernel errors
+- Displays clear error messages
+- Safely halts the CPU
 
-Handle unrecoverable kernel errors
+**Example:**
+```c
+if (memory == NULL) {
+    panic("Out of memory at line %d", __LINE__);
+}
+```
 
-Display error messages clearly
+**Behavior:**
+- Prints error message with optional formatting
+- Disables interrupts to prevent further damage
+- Halts the system permanently
 
-Halt CPU execution safely
+This is your kernel crash screen
 
-Example:
+---
 
-panic("Out of memory");
-Behavior
+### 🧠 Dynamic Memory Allocation (allocator.c / allocator.h)
 
-Prints error message
+**What it does:**
+- Provides kmalloc() and kfree() equivalents
+- Enables dynamic data structures in the kernel
+- Uses a simple linear (bump) allocator
 
-Disables interrupts
+**Characteristics:**
+- No libc dependencies
+- No system calls (we are the kernel!)
+- Simple, educational design (not optimized for production)
 
-Halts the system
+**Why it exists:**
+- Real kernels need dynamic memory
+- Static arrays won't scale for complex features
+- Memory management is required for interrupts, paging, scheduling
 
-This is equivalent to a kernel crash screen.
+---
 
-🧠 Dynamic Memory Allocation (allocator.c / allocator.h)
-Purpose
+## 🔁 Execution Flow
 
-Provide kernel-level dynamic memory allocation
-
-Enable flexible data structures
-
-Characteristics:
-
-No libc
-
-No system calls
-
-Simple linear (bump) allocator
-
-Why it exists
-
-Real kernels cannot rely on static memory only
-
-Memory management is required for all advanced features
-
-This allocator is intentionally simple and educational.
-
-🔁 Execution Flow
+### Normal Boot:
+```text
 kernel_main()
-  ├── vga_init()
-  ├── kprint("Booting kernel")
-  ├── allocator_init()
-  ├── kprint("Heap initialized")
-  └── Continue execution
-If a fatal error occurs:
+  ├── vga_init()                    # Setup display hardware
+  ├── kprint("Booting kernel...")   # First visible output
+  ├── allocator_init()              # Initialize heap memory
+  ├── kprint("Heap ready at 0x%x")  # Confirm setup
+  └── Continue to main kernel logic
+```
 
-panic("Error message")
-  → Print error
-  → Disable interrupts
-  → Halt CPU
-🧠 What Phase 2 Teaches
-Kernel modularity and layering
+### Error Handling:
+```text
+Fatal error detected
+     |
+     v
+panic("Something went wrong")
+     |
+     v
++---------------------------+
+| 1. Print error message    |
+| 2. Disable interrupts     |
+| 3. Halt CPU (hlt)         |
++---------------------------+
+```
 
-Hardware abstraction at low level
+---
 
-Memory management without an OS or libc
+## 🧠 What This Phase Teaches
 
-Controlled failure and debugging strategies
+**Core Concepts:**
+- **Kernel modularity:** Clean separation between hardware and logic
+- **Hardware abstraction:** Hiding messy hardware details behind clean APIs
+- **Bare-metal memory management:** Allocating memory without an OS to help
+- **Controlled failure:** Making crashes debuggable instead of mysterious
 
-This phase lays the foundation for:
-
-Interrupt handling
-
-Paging
-
-Scheduling
-
-Drivers
+---
 
 # Phase 3 – Interrupts & Exceptions (🚧 Planned)
 
