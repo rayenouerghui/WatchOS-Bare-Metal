@@ -22,7 +22,8 @@ BOOT    = $(ISO)/boot
 # Files
 KERNEL_BIN = $(BUILD)/kernel.bin
 OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
-             $(BUILD)/vga.o $(BUILD)/kprint.o $(BUILD)/panic.o
+             $(BUILD)/vga.o $(BUILD)/kprint.o $(BUILD)/panic.o \
+             $(BUILD)/idt.o $(BUILD)/idt_load.o
 ISO_FILE   = watch-os.iso
 
 # Default target
@@ -51,6 +52,14 @@ $(BUILD)/kprint.o: $(SRC)/kprint.c $(SRC)/kprint.h $(SRC)/vga.h | $(BUILD)
 # Compile panic handler
 $(BUILD)/panic.o: $(SRC)/panic.c $(SRC)/panic.h $(SRC)/vga.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile IDT
+$(BUILD)/idt.o: $(SRC)/idt.c $(SRC)/idt.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile IDT loader assembly
+$(BUILD)/idt_load.o: $(SRC)/idt_load.asm | $(BUILD)
+	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Link kernel
 $(KERNEL_BIN): $(OBJS) | $(BUILD)
