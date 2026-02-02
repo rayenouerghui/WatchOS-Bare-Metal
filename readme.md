@@ -16,7 +16,6 @@ This project is **not a production OS**. It is a **learning-focused kernel** des
 - Understand the **entire boot chain** (Firmware → Bootloader → Kernel)
 - Build a **freestanding x86_64 kernel**
 - Learn **linking, memory layout, and binary formats**
-- Write directly to **VGA text mode** (no libraries, no OS)
 - Run the system inside **QEMU**
 
 ---
@@ -221,21 +220,6 @@ Now you are officially **inside your OS**.
 
 ---
 
-## 🖥️ VGA Text Mode – How Output Works
-
-### VGA Memory
-
-```text
-Address: 0xB8000
-```
-
-- Each character cell = 2 bytes
-  - Byte 1: ASCII character
-  - Byte 2: Color attribute
-
-Writing to this memory **is writing to the screen**.
----
-
 # Phase 2 – Kernel Core Services
 <p align="center">
   <img src="architecture_phase_2.jpg" width="500">
@@ -385,19 +369,6 @@ panic("Something went wrong")
 | 3. Halt CPU (hlt)         |
 +---------------------------+
 ```
-
----
-
-## 🧠 What This Phase Teaches
-
-**Core Concepts:**
-- **Kernel modularity:** Clean separation between hardware and logic
-- **Hardware abstraction:** Hiding messy hardware details behind clean APIs
-- **Bare-metal memory management:** Allocating memory without an OS to help
-- **Controlled failure:** Making crashes debuggable instead of mysterious
-
----
-
 # Phase 3 – Interrupts & Exceptions (🚧 Planned)
 
 - IDT setup
