@@ -236,36 +236,6 @@ This phase transforms the kernel from a "booting program" into a structured, deb
 
 ---
 
-## 🏗️ Architecture Overview
-
-```text
-kernel_main()
-     |
-     v
-+------------------+
-| Kernel Core      |
-| (kernel.c)       |
-+------------------+
-     |
-     v
-+-----------------------------+
-| Kernel Services Layer       |
-|-----------------------------|
-| kprint   panic   allocator  |
-+-----------------------------+
-     |
-     v
-+------------------+
-| Hardware Layer   |
-| VGA Text Mode    |
-| (vga.c)          |
-+------------------+
-```
-
-The key principle: Higher layers should not know hardware details. If you change VGA to serial output, only vga.c should change.
-
----
-
 ## 🧩 Kernel Subsystems
 
 ### 🖥️ VGA Driver (vga.c / vga.h)
