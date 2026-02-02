@@ -220,30 +220,145 @@ At this point:
 Now you are officially **inside your OS**.
 
 ---
+# Phase 2 – Kernel Core Services
+<p align="center"> <img src="architecture_phase_2.jpg" width="500"> </p>
 
-## 🖥️ VGA Text Mode – How Output Works
+> This phase transforms the kernel from a “booting program” into a structured, debuggable system by introducing core services required by all real operating systems.
 
-### VGA Memory
+### High-Level View
 
 ```text
-Address: 0xB8000
-```
+kernel_main()
+     |
+     v
++------------------+
+| Kernel Core      |
+| (kernel.c)       |
++------------------+
+     |
+     v
++-----------------------------+
+| Kernel Services Layer       |
+|-----------------------------|
+| kprint   panic   allocator  |
++-----------------------------+
+     |
+     v
++------------------+
+| Hardware Layer   |
+| VGA Text Mode    |
+| (vga.c)          |
++------------------+
+🧩 Kernel Subsystems
+🖥️ VGA Driver (vga.c / vga.h)
+Purpose
 
-- Each character cell = 2 bytes
-  - Byte 1: ASCII character
-  - Byte 2: Color attribute
+Directly write characters to VGA text memory (0xB8000)
 
-Writing to this memory **is writing to the screen**.
----.
-# Phase 2 – Kernel Core (🚧 Planned)
+Handle cursor position and color attributes
 
-> To be implemented and documented.
+Why it exists
 
-- Screen driver abstraction
-- Basic memory utilities
-- Panic handling
+After boot, BIOS services are unavailable
 
----
+The kernel must interact directly with hardware
+
+This module is the lowest-level output layer and is hardware-specific.
+
+📝 Kernel Print System (kprint.c / kprint.h)
+Purpose
+
+Provide readable kernel output
+
+Hide VGA hardware details from the rest of the kernel
+
+Example:
+
+kprint("Kernel initialized\n");
+Why it exists
+
+Prevents duplicated VGA logic
+
+Centralizes output behavior
+
+This module represents the kernel’s logging interface.
+
+💥 Panic System (panic.c / panic.h)
+Purpose
+
+Handle unrecoverable kernel errors
+
+Display error messages clearly
+
+Halt CPU execution safely
+
+Example:
+
+panic("Out of memory");
+Behavior
+
+Prints error message
+
+Disables interrupts
+
+Halts the system
+
+This is equivalent to a kernel crash screen.
+
+🧠 Dynamic Memory Allocation (allocator.c / allocator.h)
+Purpose
+
+Provide kernel-level dynamic memory allocation
+
+Enable flexible data structures
+
+Characteristics:
+
+No libc
+
+No system calls
+
+Simple linear (bump) allocator
+
+Why it exists
+
+Real kernels cannot rely on static memory only
+
+Memory management is required for all advanced features
+
+This allocator is intentionally simple and educational.
+
+🔁 Execution Flow
+kernel_main()
+  ├── vga_init()
+  ├── kprint("Booting kernel")
+  ├── allocator_init()
+  ├── kprint("Heap initialized")
+  └── Continue execution
+If a fatal error occurs:
+
+panic("Error message")
+  → Print error
+  → Disable interrupts
+  → Halt CPU
+🧠 What Phase 2 Teaches
+Kernel modularity and layering
+
+Hardware abstraction at low level
+
+Memory management without an OS or libc
+
+Controlled failure and debugging strategies
+
+This phase lays the foundation for:
+
+Interrupt handling
+
+Paging
+
+Scheduling
+
+Drivers
 
 # Phase 3 – Interrupts & Exceptions (🚧 Planned)
 
