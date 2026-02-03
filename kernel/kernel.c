@@ -14,11 +14,23 @@ uint32_t kernel_version = 1;
 uint32_t boot_count;
 
 void kernel_main(void) {
+    /* Phase 3.1: Initialize IDT FIRST - before anything else */
+    idt_init();
+    
+    /* Direct VGA write for debugging */
+    volatile uint16_t* vga = (uint16_t*)0xB8000;
+    vga[0] = 0x0F41;  // 'A' - kernel started
+    
     /* Initialize VGA + logging */
     kprint_init();
 
-    /* Phase 3.1: Initialize IDT EARLY */
     kprint_info("Initializing IDT...");
+    kprint_ok("IDT loaded successfully");
+
+    /* Phase 3.4: Remap PIC */
+    kprint_info("Remapping PIC...");
+    pic_remap();
+    kprint_ok("PIC remapped");
     idt_init();
     kprint_ok("IDT loaded successfully");
 

@@ -26,7 +26,7 @@ void vga_init(void) {
 
 /* Clear the entire screen */
 void vga_clear(void) {
-    for (uint32_t i = 0; i < (uint32_t)(VGA_WIDTH * VGA_HEIGHT); i++) {
+    for (int i = 0; i < 2000; i++) {
         VGA_BUFFER[i] = vga_entry(' ', VGA_COLOR_LIGHT_GRAY);
     }
     cursor_x = 0;

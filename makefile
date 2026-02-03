@@ -9,7 +9,7 @@ GRUBMK  = grub-mkrescue
 QEMU    = qemu-system-x86_64
 
 # Flags
-CFLAGS  = -m64 -ffreestanding -O2 -Wall -Wextra -I./kernel
+CFLAGS  = -m64 -ffreestanding -O0 -Wall -Wextra -I./kernel -mno-red-zone -fno-pic
 ASMFLAGS = -f elf64
 LDFLAGS  = -n -T kernel/linker.ld
 
