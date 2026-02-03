@@ -35,4 +35,7 @@ void panic(const char* message) {
     
     /* Halt the CPU - never returns */
     halt();
+    
+    /* Should never reach here, but satisfy compiler */
+    __builtin_unreachable();
 }
