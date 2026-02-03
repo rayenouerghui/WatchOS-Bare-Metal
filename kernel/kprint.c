@@ -56,3 +56,13 @@ void kprint_warn(const char* message) {
 void kprint_error(const char* message) {
     kprint(LOG_ERROR, message);
 }
+
+void kprint_hex(uint8_t value) {
+    char hex[4] = "0x";
+    const char* digits = "0123456789ABCDEF";
+    hex[2] = digits[(value >> 4) & 0xF];
+    hex[3] = digits[value & 0xF];
+    
+    vga_print(hex, VGA_COLOR_CYAN);
+    vga_print(" ", VGA_COLOR_WHITE);
+}

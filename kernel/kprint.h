@@ -1,6 +1,8 @@
 #ifndef KPRINT_H
 #define KPRINT_H
 
+#include <stdint.h>
+
 /* Kernel print functions - structured logging for the kernel */
 
 /* Log levels */
@@ -22,5 +24,8 @@ void kprint_info(const char* message);
 void kprint_ok(const char* message);
 void kprint_warn(const char* message);
 void kprint_error(const char* message);
+
+/* Print hex value */
+void kprint_hex(uint8_t value);
 
 #endif
