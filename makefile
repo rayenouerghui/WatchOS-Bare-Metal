@@ -23,7 +23,8 @@ BOOT    = $(ISO)/boot
 KERNEL_BIN = $(BUILD)/kernel.bin
 OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
              $(BUILD)/vga.o $(BUILD)/kprint.o $(BUILD)/panic.o \
-             $(BUILD)/idt.o $(BUILD)/idt_load.o
+             $(BUILD)/idt.o $(BUILD)/idt_load.o $(BUILD)/exceptions.o \
+             $(BUILD)/pic.o $(BUILD)/keyboard.o $(BUILD)/irq.o
 ISO_FILE   = watch-os.iso
 
 # Default target
@@ -59,6 +60,22 @@ $(BUILD)/idt.o: $(SRC)/idt.c $(SRC)/idt.h | $(BUILD)
 
 # Compile IDT loader assembly
 $(BUILD)/idt_load.o: $(SRC)/idt_load.asm | $(BUILD)
+	$(ASM) $(ASMFLAGS) $< -o $@
+
+# Compile exception handlers assembly
+$(BUILD)/exceptions.o: $(SRC)/exceptions.asm | $(BUILD)
+	$(ASM) $(ASMFLAGS) $< -o $@
+
+# Compile PIC driver
+$(BUILD)/pic.o: $(SRC)/pic.c $(SRC)/pic.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile keyboard driver
+$(BUILD)/keyboard.o: $(SRC)/keyboard.c $(SRC)/kprint.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile IRQ handlers assembly
+$(BUILD)/irq.o: $(SRC)/irq.asm | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Link kernel
