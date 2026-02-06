@@ -339,19 +339,34 @@ panic("Something went wrong")
 | 3. Halt CPU (hlt)         |
 +---------------------------+
 ```
-# Phase 3 – Interrupts & Exceptions (🚧 Planned)
+# Phase 3 – Interrupts & Exceptions (✅ Complete)
 
-- IDT setup
-- CPU exceptions
-- Keyboard interrupt
+- IDT setup with 256 entries
+- All 32 CPU exception handlers
+- PIC remapping and IRQ handling
+- Timer interrupt (PIT at 100Hz)
+- Keyboard interrupt with scancode translation
 
 ---
 
-# Phase 4 – Memory Management (🚧 Planned)
+# Phase 4 – Memory Management (✅ Complete)
 
-- Paging
-- Physical memory manager
-- Heap
+See [PHASE4_MEMORY.md](PHASE4_MEMORY.md) for detailed documentation.
+
+**Implemented:**
+- Physical Memory Manager (PMM) with bitmap allocation
+- x86_64 4-level paging (PML4 → PDPT → PD → PT)
+- Virtual memory with identity mapping
+- Heap allocator with malloc/free support
+- Block coalescing and fragmentation prevention
+- Memory protection and corruption detection
+
+**Key Features:**
+- Dynamic page table creation
+- TLB invalidation
+- 16-byte aligned allocations
+- Double-free detection
+- Magic number validation
 
 ---
 

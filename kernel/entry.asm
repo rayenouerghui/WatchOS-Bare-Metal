@@ -24,8 +24,21 @@ global _start
 extern kernel_main
 
 _start:
-    ; Set up stack
+    ; Disable interrupts immediately
+    cli
+    
+    ; Set up proper stack with 16-byte alignment
     mov rsp, stack_top
+    and rsp, -16        ; Align stack to 16 bytes
+    
+    ; Clear direction flag (required by System V ABI)
+    cld
+    
+    ; Zero out registers that might contain garbage
+    xor rax, rax
+    xor rbx, rbx
+    xor rcx, rcx
+    xor rdx, rdx
     
     ; Call kernel main
     call kernel_main
