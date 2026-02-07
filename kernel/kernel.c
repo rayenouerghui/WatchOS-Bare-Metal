@@ -17,7 +17,7 @@ void kernel_main(void) {
     kprint_info("WatchOS Kernel starting...");
     kprint_info("");
     
-    /* Step 2: Initialize Interrupt Descriptor Table */
+    /* Step 2: Initialize Interrupt Descriptor Table (but don't enable yet) */
     kprint_info("Setting up IDT...");
     idt_init();
     kprint_ok("IDT initialized (256 entries)");
@@ -27,39 +27,37 @@ void kernel_main(void) {
     pic_remap();
     kprint_ok("PIC remapped (IRQ0-15 -> INT 32-47)");
     
-    /* Step 4: Initialize timer (100 Hz) */
+    kprint_info("");
+    kprint_info("=== Phase 4: Memory Management ===");
+    kprint_info("");
+    
+    /* Step 4: Initialize Physical Memory Manager BEFORE paging */
+    kprint_info("Initializing Physical Memory Manager...");
+    pmm_init(32 * 1024 * 1024);  // Assume 32MB RAM
+    kprint_ok("PMM initialized");
+    
+    /* Step 5: Initialize Paging */
+    kprint_info("Setting up paging...");
+    paging_init();
+    paging_enable();
+    
+    /* Step 6: Initialize Heap Allocator */
+    kprint_info("Initializing heap allocator...");
+    heap_init();
+    
+    /* Step 7: NOW enable interrupts (after memory is set up) */
     kprint_info("Initializing timer (100 Hz)...");
     timer_init(100);
     pic_unmask_irq0();
     kprint_ok("Timer initialized and enabled");
     
-    /* Step 5: Enable keyboard interrupt (IRQ1) */
     kprint_info("Enabling keyboard interrupt...");
     pic_unmask_irq1();
     kprint_ok("Keyboard IRQ enabled");
     
-    /* Step 6: Enable interrupts globally */
     kprint_info("Enabling interrupts...");
     __asm__ volatile("sti");
     kprint_ok("Interrupts enabled");
-    
-    kprint_info("");
-    kprint_info("=== Phase 4: Memory Management ===");
-    kprint_info("");
-    
-    /* Step 7: Initialize Physical Memory Manager */
-    kprint_info("Initializing Physical Memory Manager...");
-    pmm_init(32 * 1024 * 1024);  // Assume 32MB RAM
-    kprint_ok("PMM initialized");
-    
-    /* Step 8: Initialize Paging */
-    kprint_info("Setting up paging...");
-    paging_init();
-    paging_enable();
-    
-    /* Step 9: Initialize Heap Allocator */
-    kprint_info("Initializing heap allocator...");
-    heap_init();
     
     /* Display memory statistics */
     kprint_info("");

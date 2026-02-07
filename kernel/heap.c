@@ -7,6 +7,7 @@
 #define HEAP_MAGIC 0xDEADBEEF
 #define HEAP_START 0x10000000  /* 256MB virtual address */
 #define HEAP_MAX_SIZE 0x1000000 /* 16MB max heap */
+#define PAGE_SIZE 4096
 
 /* Block header for allocated memory */
 typedef struct block_header {
