@@ -10,13 +10,13 @@ static button_t buttons[NUM_BUTTONS];
 static uint8_t current_selection = 0;
 static uint8_t in_menu = 1;
 
-/* Beautiful simple logo */
+/* Beautiful ASCII art logo */
 static const char* logo[] = {
-    "  ================================================  ",
-    "                                                    ",
-    "              R  A  Y  E  N     O  S                ",
-    "                                                    ",
-    "  ================================================  "
+    "  ____      _     __   __  _____  _   _      ___   ____  ",
+    " |  _ \\    / \\    \\ \\ / / | ____|| \\ | |    / _ \\ / ___| ",
+    " | |_) |  / _ \\    \\ V /  |  _|  |  \\| |   | | | |\\___ \\ ",
+    " |  _ <  / ___ \\    | |   | |___ | |\\  |   | |_| | ___) |",
+    " |_| \\_\\/_/   \\_\\   |_|   |_____||_| \\_|    \\___/ |____/ "
 };
 
 void ui_init(void) {
@@ -48,27 +48,12 @@ void ui_init(void) {
 
 static void draw_logo(void) {
     uint8_t start_y = 2;
-    uint8_t start_x = 14;
+    uint8_t start_x = 10;
     
-    /* Top border */
-    vga_set_cursor(start_x, start_y);
-    vga_print(logo[0], VGA_COLOR_LIGHT_CYAN);
-    
-    /* Empty line */
-    vga_set_cursor(start_x, start_y + 1);
-    vga_print(logo[1], VGA_COLOR_LIGHT_CYAN);
-    
-    /* Title - RAYEN OS */
-    vga_set_cursor(start_x, start_y + 2);
-    vga_print(logo[2], VGA_COLOR_LIGHT_GREEN);
-    
-    /* Empty line */
-    vga_set_cursor(start_x, start_y + 3);
-    vga_print(logo[3], VGA_COLOR_LIGHT_CYAN);
-    
-    /* Bottom border */
-    vga_set_cursor(start_x, start_y + 4);
-    vga_print(logo[4], VGA_COLOR_LIGHT_CYAN);
+    for (int i = 0; i < 5; i++) {
+        vga_set_cursor(start_x, start_y + i);
+        vga_print(logo[i], VGA_COLOR_LIGHT_CYAN);
+    }
 }
 
 static void draw_button(button_t* btn) {
