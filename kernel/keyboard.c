@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "ui.h"
+#include "vga.h"
 
 #define KEYBOARD_DATA_PORT 0x60
 
@@ -14,10 +15,13 @@ void keyboard_handler(void) {
     
     /* Handle key press only (bit 7 is 0) */
     if (!(scancode & 0x80)) {
-        /* Force exit on ESC (0x01) or X (0x2D) */
-        if (scancode == 0x01 || scancode == 0x2D) {
-            ui_request_exit();
+        /* ESC key (0x01) - return to menu */
+        if (scancode == 0x01) {
+            ui_draw_menu();
+            return;
         }
+        
+        /* Pass to UI handler for menu navigation */
         ui_handle_input(scancode);
     }
 }

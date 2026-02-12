@@ -38,7 +38,7 @@ $(BUILD)/entry.o: $(SRC)/entry.asm | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile kernel C code
-$(BUILD)/kernel.o: $(SRC)/kernel_new.c | $(BUILD)
+$(BUILD)/kernel.o: $(SRC)/kernel.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile allocator
