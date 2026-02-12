@@ -27,7 +27,7 @@ OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
              $(BUILD)/exceptions_handler.o $(BUILD)/pic.o $(BUILD)/keyboard.o \
              $(BUILD)/irq.o $(BUILD)/timer.o $(BUILD)/pmm.o $(BUILD)/paging.o \
              $(BUILD)/heap.o $(BUILD)/process.o $(BUILD)/scheduler.o \
-             $(BUILD)/context_switch.o
+             $(BUILD)/context_switch.o $(BUILD)/ui.o
 ISO_FILE   = watch-os.iso
 
 # Default target
@@ -38,7 +38,7 @@ $(BUILD)/entry.o: $(SRC)/entry.asm | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile kernel C code
-$(BUILD)/kernel.o: $(SRC)/kernel.c | $(BUILD)
+$(BUILD)/kernel.o: $(SRC)/kernel_new.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile allocator
@@ -78,7 +78,7 @@ $(BUILD)/pic.o: $(SRC)/pic.c $(SRC)/pic.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile keyboard driver
-$(BUILD)/keyboard.o: $(SRC)/keyboard.c | $(BUILD)
+$(BUILD)/keyboard.o: $(SRC)/keyboard_new.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile IRQ handlers
@@ -112,6 +112,10 @@ $(BUILD)/scheduler.o: $(SRC)/scheduler.c $(SRC)/scheduler.h | $(BUILD)
 # Compile context switch
 $(BUILD)/context_switch.o: $(SRC)/context_switch.asm | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
+
+# Compile UI
+$(BUILD)/ui.o: $(SRC)/ui.c $(SRC)/ui.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link kernel
 $(KERNEL_BIN): $(OBJS) | $(BUILD)
