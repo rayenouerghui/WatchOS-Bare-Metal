@@ -10,13 +10,13 @@ static button_t buttons[NUM_BUTTONS];
 static uint8_t current_selection = 0;
 static uint8_t in_menu = 1;
 
-/* Blocky ASCII art logo like Claude style */
+/* Beautiful simple logo */
 static const char* logo[] = {
-    " ####    ###   #   # ##### #   #       ####   #### ",
-    " #   #  #   #  #   # #      # #       #    # #     ",
-    " ####   #####   # #  ####    #        #    #  ###  ",
-    " #  #   #   #    #   #       #        #    #     # ",
-    " #   #  #   #    #   #####   #         ####  ####  "
+    "  ================================================  ",
+    "                                                    ",
+    "              R  A  Y  E  N     O  S                ",
+    "                                                    ",
+    "  ================================================  "
 };
 
 void ui_init(void) {
@@ -50,10 +50,25 @@ static void draw_logo(void) {
     uint8_t start_y = 2;
     uint8_t start_x = 14;
     
-    for (int i = 0; i < 5; i++) {
-        vga_set_cursor(start_x, start_y + i);
-        vga_print(logo[i], VGA_COLOR_LIGHT_CYAN);
-    }
+    /* Top border */
+    vga_set_cursor(start_x, start_y);
+    vga_print(logo[0], VGA_COLOR_LIGHT_CYAN);
+    
+    /* Empty line */
+    vga_set_cursor(start_x, start_y + 1);
+    vga_print(logo[1], VGA_COLOR_LIGHT_CYAN);
+    
+    /* Title - RAYEN OS */
+    vga_set_cursor(start_x, start_y + 2);
+    vga_print(logo[2], VGA_COLOR_LIGHT_GREEN);
+    
+    /* Empty line */
+    vga_set_cursor(start_x, start_y + 3);
+    vga_print(logo[3], VGA_COLOR_LIGHT_CYAN);
+    
+    /* Bottom border */
+    vga_set_cursor(start_x, start_y + 4);
+    vga_print(logo[4], VGA_COLOR_LIGHT_CYAN);
 }
 
 static void draw_button(button_t* btn) {
@@ -90,8 +105,8 @@ void ui_draw_menu(void) {
     draw_logo();
     
     /* Draw subtitle */
-    vga_set_cursor(15, 8);
-    vga_print("Educational Operating System - Built from Scratch", VGA_COLOR_LIGHT_GRAY);
+    vga_set_cursor(18, 8);
+    vga_print("Welcome to Rayen Ouerghui OS", VGA_COLOR_YELLOW);
     
     /* Draw buttons */
     for (int i = 0; i < NUM_BUTTONS; i++) {
