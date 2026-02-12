@@ -10,36 +10,36 @@ static button_t buttons[NUM_BUTTONS];
 static uint8_t current_selection = 0;
 static uint8_t in_menu = 1;
 
-/* ASCII Art for "RAYEN OS" - Clean block style */
+/* Blocky ASCII art logo like Claude style */
 static const char* logo[] = {
-    " ####    ###   #   # ##### #   #    ####   #### ",
-    " #   #  #   #  #   # #      # #    #    # #     ",
-    " ####   #####   # #  ####    #     #    #  ###  ",
-    " #  #   #   #    #   #       #     #    #     # ",
-    " #   #  #   #    #   #####   #      ####  ####  "
+    " ####    ###   #   # ##### #   #       ####   #### ",
+    " #   #  #   #  #   # #      # #       #    # #     ",
+    " ####   #####   # #  ####    #        #    #  ###  ",
+    " #  #   #   #    #   #       #        #    #     # ",
+    " #   #  #   #    #   #####   #         ####  ####  "
 };
 
 void ui_init(void) {
-    /* Initialize buttons - horizontal layout */
-    buttons[0].x = 12;
-    buttons[0].y = 14;
-    buttons[0].width = 22;
+    /* Initialize buttons - vertical centered layout */
+    buttons[0].x = 28;
+    buttons[0].y = 12;
+    buttons[0].width = 24;
     buttons[0].height = 3;
-    buttons[0].label = "   [1] Show Time   ";
+    buttons[0].label = "   [1] Show Time    ";
     buttons[0].selected = 1;
     
-    buttons[1].x = 29;
-    buttons[1].y = 14;
-    buttons[1].width = 22;
+    buttons[1].x = 28;
+    buttons[1].y = 16;
+    buttons[1].width = 24;
     buttons[1].height = 3;
-    buttons[1].label = "  [2] Snake Game   ";
+    buttons[1].label = "   [2] Snake Game   ";
     buttons[1].selected = 0;
     
-    buttons[2].x = 46;
-    buttons[2].y = 14;
-    buttons[2].width = 22;
+    buttons[2].x = 28;
+    buttons[2].y = 20;
+    buttons[2].width = 24;
     buttons[2].height = 3;
-    buttons[2].label = "  [3] System Info  ";
+    buttons[2].label = "  [3] System Info   ";
     buttons[2].selected = 0;
     
     current_selection = 0;
@@ -47,8 +47,8 @@ void ui_init(void) {
 }
 
 static void draw_logo(void) {
-    uint8_t start_y = 3;
-    uint8_t start_x = 15;
+    uint8_t start_y = 2;
+    uint8_t start_x = 14;
     
     for (int i = 0; i < 5; i++) {
         vga_set_cursor(start_x, start_y + i);
@@ -57,29 +57,30 @@ static void draw_logo(void) {
 }
 
 static void draw_button(button_t* btn) {
-    uint8_t color = btn->selected ? VGA_COLOR_BLACK : VGA_COLOR_WHITE;
+    uint8_t color = btn->selected ? VGA_COLOR_YELLOW : VGA_COLOR_WHITE;
+    uint8_t border_color = btn->selected ? VGA_COLOR_YELLOW : VGA_COLOR_LIGHT_GRAY;
     
     /* Top border */
     vga_set_cursor(btn->x, btn->y);
-    vga_print("+", VGA_COLOR_WHITE);
+    vga_print("+", border_color);
     for (int i = 0; i < btn->width - 2; i++) {
-        vga_print("-", VGA_COLOR_WHITE);
+        vga_print("-", border_color);
     }
-    vga_print("+", VGA_COLOR_WHITE);
+    vga_print("+", border_color);
     
     /* Label */
     vga_set_cursor(btn->x, btn->y + 1);
-    vga_print("|", VGA_COLOR_WHITE);
+    vga_print("|", border_color);
     vga_print(btn->label, color);
-    vga_print("|", VGA_COLOR_WHITE);
+    vga_print("|", border_color);
     
     /* Bottom border */
     vga_set_cursor(btn->x, btn->y + 2);
-    vga_print("+", VGA_COLOR_WHITE);
+    vga_print("+", border_color);
     for (int i = 0; i < btn->width - 2; i++) {
-        vga_print("-", VGA_COLOR_WHITE);
+        vga_print("-", border_color);
     }
-    vga_print("+", VGA_COLOR_WHITE);
+    vga_print("+", border_color);
 }
 
 void ui_draw_menu(void) {
@@ -89,23 +90,17 @@ void ui_draw_menu(void) {
     draw_logo();
     
     /* Draw subtitle */
-    vga_set_cursor(18, 9);
-    vga_print("Welcome to RayenOS - Educational Operating System", VGA_COLOR_LIGHT_GRAY);
-    
-    /* Draw separator */
-    vga_set_cursor(10, 11);
-    for (int i = 0; i < 60; i++) {
-        vga_print("=", VGA_COLOR_DARK_GRAY);
-    }
+    vga_set_cursor(15, 8);
+    vga_print("Educational Operating System - Built from Scratch", VGA_COLOR_LIGHT_GRAY);
     
     /* Draw buttons */
     for (int i = 0; i < NUM_BUTTONS; i++) {
         draw_button(&buttons[i]);
     }
     
-    /* Draw instructions */
-    vga_set_cursor(18, 20);
-    vga_print("Press [1] [2] [3] to select  |  [ESC] to return", VGA_COLOR_DARK_GRAY);
+    /* Draw instructions at bottom */
+    vga_set_cursor(22, 24);
+    vga_print("Press [1] [2] [3] to select  |  [ESC] to exit", VGA_COLOR_DARK_GRAY);
 }
 
 void ui_handle_input(uint8_t scancode) {
