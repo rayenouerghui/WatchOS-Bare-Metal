@@ -49,5 +49,6 @@ void kernel_main(void) {
     /* Idle loop */
     while (1) {
         __asm__ volatile("hlt");
+        ui_update();
     }
 }

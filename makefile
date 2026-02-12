@@ -78,7 +78,7 @@ $(BUILD)/pic.o: $(SRC)/pic.c $(SRC)/pic.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile keyboard driver
-$(BUILD)/keyboard.o: $(SRC)/keyboard_new.c | $(BUILD)
+$(BUILD)/keyboard.o: $(SRC)/keyboard.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile IRQ handlers

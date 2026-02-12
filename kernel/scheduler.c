@@ -3,7 +3,10 @@
 #include "panic.h"
 #include "kprint.h"
 
+#include <stddef.h>
+
 /* Ready queue (circular linked list) */
+static process_t* current_process = NULL;
 static process_t* ready_queue_head = NULL;
 static process_t* ready_queue_tail = NULL;
 

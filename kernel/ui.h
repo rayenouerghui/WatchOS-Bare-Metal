@@ -20,6 +20,12 @@ void ui_draw_menu(void);
 /* Handle keyboard input for menu */
 void ui_handle_input(uint8_t scancode);
 
+/* Request exiting the current UI screen back to the main menu */
+void ui_request_exit(void);
+
+/* Run one UI update step from the main loop */
+void ui_update(void);
+
 /* Show time screen */
 void ui_show_time(void);
 

@@ -15,13 +15,11 @@ void keyboard_handler(void) {
     
     /* Handle key press only (bit 7 is 0) */
     if (!(scancode & 0x80)) {
-        /* ESC key (0x01) - return to menu */
-        if (scancode == 0x01) {
-            ui_draw_menu();
-            return;
+        /* Force exit on ESC or X */
+        if (scancode == 0x01 || scancode == 0x2D) {
+            ui_request_exit();
         }
-        
-        /* Pass to UI handler for menu navigation */
+        /* Pass to UI handler (menu + sub-screens) */
         ui_handle_input(scancode);
     }
 }
