@@ -26,7 +26,8 @@ OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
              $(BUILD)/idt.o $(BUILD)/idt_load.o $(BUILD)/exceptions.o \
              $(BUILD)/exceptions_handler.o $(BUILD)/pic.o $(BUILD)/keyboard.o \
              $(BUILD)/irq.o $(BUILD)/timer.o $(BUILD)/pmm.o $(BUILD)/paging.o \
-             $(BUILD)/heap.o
+             $(BUILD)/heap.o $(BUILD)/process.o $(BUILD)/scheduler.o \
+             $(BUILD)/context_switch.o
 ISO_FILE   = watch-os.iso
 
 # Default target
@@ -99,6 +100,18 @@ $(BUILD)/paging.o: $(SRC)/paging.c $(SRC)/paging.h | $(BUILD)
 # Compile heap
 $(BUILD)/heap.o: $(SRC)/heap.c $(SRC)/heap.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile process management
+$(BUILD)/process.o: $(SRC)/process.c $(SRC)/process.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile scheduler
+$(BUILD)/scheduler.o: $(SRC)/scheduler.c $(SRC)/scheduler.h | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile context switch
+$(BUILD)/context_switch.o: $(SRC)/context_switch.asm | $(BUILD)
+	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Link kernel
 $(KERNEL_BIN): $(OBJS) | $(BUILD)

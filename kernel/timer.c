@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "scheduler.h"
 #include <stdint.h>
 
 #define PIT_CHANNEL0 0x40
@@ -25,6 +26,9 @@ void timer_init(uint32_t frequency) {
 
 void timer_handler(void) {
     timer_ticks++;
+    
+    /* Call scheduler every tick for multitasking */
+    scheduler_switch();
 }
 
 uint64_t timer_get_ticks(void) {

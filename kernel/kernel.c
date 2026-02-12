@@ -10,6 +10,31 @@
 #include "pmm.h"
 #include "paging.h"
 #include "heap.h"
+#include "process.h"
+#include "scheduler.h"
+#include "vga.h"
+
+/* Test process functions */
+void process_a(void) {
+    while (1) {
+        vga_print("A", VGA_COLOR_LIGHT_GREEN);
+        for (volatile int i = 0; i < 10000000; i++);  /* Busy wait */
+    }
+}
+
+void process_b(void) {
+    while (1) {
+        vga_print("B", VGA_COLOR_LIGHT_CYAN);
+        for (volatile int i = 0; i < 10000000; i++);  /* Busy wait */
+    }
+}
+
+void process_c(void) {
+    while (1) {
+        vga_print("C", VGA_COLOR_YELLOW);
+        for (volatile int i = 0; i < 10000000; i++);  /* Busy wait */
+    }
+}
 
 void kernel_main(void) {
     /* Step 1: Initialize VGA first for debugging output */
@@ -27,10 +52,6 @@ void kernel_main(void) {
     pic_remap();
     kprint_ok("PIC remapped (IRQ0-15 -> INT 32-47)");
     
-    kprint_info("");
-    kprint_info("=== Phase 4: Memory Management ===");
-    kprint_info("");
-    
     /* Step 4: Initialize Physical Memory Manager BEFORE paging */
     kprint_info("Initializing Physical Memory Manager...");
     pmm_init(32 * 1024 * 1024);  // Assume 32MB RAM
@@ -45,7 +66,30 @@ void kernel_main(void) {
     kprint_info("Initializing heap allocator...");
     heap_init();
     
-    /* Step 7: NOW enable interrupts (after memory is set up) */
+    kprint_info("");
+    kprint_info("=== Phase 5: Multitasking ===");
+    kprint_info("");
+    
+    /* Step 7: Initialize Process Management */
+    kprint_info("Initializing process management...");
+    process_init();
+    
+    /* Step 8: Initialize Scheduler */
+    kprint_info("Initializing scheduler...");
+    scheduler_init();
+    
+    /* Step 9: Create test processes */
+    kprint_info("Creating test processes...");
+    process_t* proc_a = process_create(process_a, 8192);
+    process_t* proc_b = process_create(process_b, 8192);
+    process_t* proc_c = process_create(process_c, 8192);
+    
+    scheduler_add(proc_a);
+    scheduler_add(proc_b);
+    scheduler_add(proc_c);
+    kprint_ok("Created 3 test processes (A, B, C)");
+    
+    /* Step 10: NOW enable interrupts (after everything is set up) */
     kprint_info("Initializing timer (100 Hz)...");
     timer_init(100);
     pic_unmask_irq0();
@@ -59,34 +103,12 @@ void kernel_main(void) {
     __asm__ volatile("sti");
     kprint_ok("Interrupts enabled");
     
-    /* Display memory statistics */
-    kprint_info("");
-    kprint_info("Memory Statistics:");
-    uint64_t total_mem = pmm_get_total_memory();
-    uint64_t used_mem = pmm_get_used_memory();
-    uint64_t free_mem = pmm_get_free_memory();
-    
     /* Boot complete */
     kprint_info("");
     kprint_ok("WatchOS Kernel booted successfully!");
     kprint_info("");
-    kprint_ok("Phase 4 Complete - Memory Management Operational");
-    kprint_info("Type to test keyboard input...");
-    kprint_info("");
-    
-    /* Test heap allocator */
-    kprint_info("Testing heap allocator...");
-    void* test1 = heap_alloc(128);
-    void* test2 = heap_alloc(256);
-    void* test3 = heap_alloc(512);
-    kprint_ok("Allocated 3 blocks (128, 256, 512 bytes)");
-    
-    heap_free(test2);
-    kprint_ok("Freed middle block (256 bytes)");
-    
-    void* test4 = heap_alloc(128);
-    kprint_ok("Reallocated 128 bytes (reused freed space)");
-    
+    kprint_ok("Phase 5 Complete - Multitasking Operational");
+    kprint_info("Watch the A, B, C characters appear (round-robin scheduling)");
     kprint_info("");
     
     /* Idle loop - wait for interrupts */
