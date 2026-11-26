@@ -1,16 +1,16 @@
 # Makefile for Watch-OS
-# Build kernel, allocator, and bootable ISO
+# Build the WatchOS kernel and bootable ISO
 
 # Compiler and tools
 CC      = gcc
-ASM     = nasm
+ASM     = $(CC)
 LD      = ld
 GRUBMK  = grub-mkrescue
 QEMU    = qemu-system-x86_64
 
 # Flags
 CFLAGS  = -m64 -ffreestanding -O0 -Wall -Wextra -I./kernel -mno-red-zone -fno-pic
-ASMFLAGS = -f elf64
+ASMFLAGS = -m64 -c
 LDFLAGS  = -n -T kernel/linker.ld
 
 # Directories
@@ -21,7 +21,7 @@ BOOT    = $(ISO)/boot
 
 # Files
 KERNEL_BIN = $(BUILD)/kernel.bin
-OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o $(BUILD)/allocator.o \
+OBJS       = $(BUILD)/entry.o $(BUILD)/kernel.o \
              $(BUILD)/vga.o $(BUILD)/kprint.o $(BUILD)/panic.o \
              $(BUILD)/idt.o $(BUILD)/idt_load.o $(BUILD)/exceptions.o \
              $(BUILD)/exceptions_handler.o $(BUILD)/pic.o $(BUILD)/keyboard.o \
@@ -34,15 +34,11 @@ ISO_FILE   = watch-os.iso
 all: $(ISO_FILE)
 
 # Compile assembly entry
-$(BUILD)/entry.o: $(SRC)/entry.asm | $(BUILD)
+$(BUILD)/entry.o: $(SRC)/entry.S | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile kernel C code
 $(BUILD)/kernel.o: $(SRC)/kernel.c | $(BUILD)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Compile allocator
-$(BUILD)/allocator.o: $(SRC)/allocator.c $(SRC)/allocator.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile VGA driver
@@ -62,11 +58,11 @@ $(BUILD)/idt.o: $(SRC)/idt.c $(SRC)/idt.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile IDT loader
-$(BUILD)/idt_load.o: $(SRC)/idt_load.asm | $(BUILD)
+$(BUILD)/idt_load.o: $(SRC)/idt_load.S | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile exceptions assembly
-$(BUILD)/exceptions.o: $(SRC)/exceptions.asm | $(BUILD)
+$(BUILD)/exceptions.o: $(SRC)/exceptions.S | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile exception handler C
@@ -82,7 +78,7 @@ $(BUILD)/keyboard.o: $(SRC)/keyboard.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile IRQ handlers
-$(BUILD)/irq.o: $(SRC)/irq.asm | $(BUILD)
+$(BUILD)/irq.o: $(SRC)/irq.S | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile timer
@@ -110,7 +106,7 @@ $(BUILD)/scheduler.o: $(SRC)/scheduler.c $(SRC)/scheduler.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile context switch
-$(BUILD)/context_switch.o: $(SRC)/context_switch.asm | $(BUILD)
+$(BUILD)/context_switch.o: $(SRC)/context_switch.S | $(BUILD)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 # Compile UI
@@ -138,10 +134,14 @@ clean:
 
 # Run in QEMU
 run: $(ISO_FILE)
+	$(QEMU) -cdrom $(ISO_FILE) -display curses
+
+# Use the host graphical display when one is available.
+run-gui: $(ISO_FILE)
 	$(QEMU) -cdrom $(ISO_FILE)
 
 # Debug mode
 debug: $(ISO_FILE)
-	$(QEMU) -cdrom $(ISO_FILE) -d int,cpu_reset -no-reboot -no-shutdown
+	$(QEMU) -cdrom $(ISO_FILE) -display curses -d int,cpu_reset -no-reboot -no-shutdown
 
-.PHONY: all clean run debug
+.PHONY: all clean run run-gui debug

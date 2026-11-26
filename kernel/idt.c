@@ -7,7 +7,7 @@ static struct idt_ptr idt_descriptor;
 /* External assembly functions */
 extern void idt_load(struct idt_ptr*);
 
-/* Exception handlers (defined in exceptions.asm) */
+/* Exception handlers (defined in exceptions.S) */
 extern void isr0(void);   // Divide by Zero
 extern void isr1(void);   // Debug
 extern void isr2(void);   // Non-Maskable Interrupt
@@ -41,7 +41,7 @@ extern void isr29(void);  // Reserved
 extern void isr30(void);  // Reserved
 extern void isr31(void);  // Reserved
 
-/* IRQ handlers (defined in irq.asm) */
+/* IRQ handlers (defined in irq.S) */
 extern void irq0_handler(void);   // Timer
 extern void irq1_handler(void);   // Keyboard
 extern void irq2_handler(void);   // Cascade

@@ -1,0 +1,5 @@
+build/
+iso/
+watch-os.iso
+*.o
+*.bin

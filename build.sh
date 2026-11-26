@@ -10,14 +10,8 @@ echo "  WatchOS Build Script"
 echo "================================="
 echo ""
 
-# Clean previous build
-echo "[1/4] Cleaning previous build..."
-make clean
-echo "✓ Clean complete"
-echo ""
-
-# Build the OS
-echo "[2/4] Building kernel..."
+# Build the OS incrementally. Use `make clean` explicitly when a full rebuild is needed.
+echo "[1/3] Building kernel and ISO..."
 make all
 echo "✓ Build complete"
 echo ""
@@ -28,12 +22,12 @@ if [ ! -f "watch-os.iso" ]; then
     exit 1
 fi
 
-echo "[3/4] ISO created successfully"
+echo "[2/3] ISO created successfully"
 echo "✓ File: watch-os.iso"
 echo ""
 
 # Run in QEMU
-echo "[4/4] Launching QEMU..."
+echo "[3/3] Launching QEMU..."
 echo "================================="
 echo ""
 make run
