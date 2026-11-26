@@ -4,6 +4,20 @@ A custom bare-metal operating system built for the x86_64 architecture by **Moha
 
 This project is an independent systems programming experiment written primarily in C and x86_64 assembly. It does not depend on an existing operating system or a standard C library.
 
+## Architecture
+
+### Boot and System Overview
+
+<p align="center">
+  <img src="architecture_phase_1.jpg" alt="WatchOS boot and system architecture" width="700">
+</p>
+
+### Kernel Subsystems
+
+<p align="center">
+  <img src="architecture_phase_2.jpg" alt="WatchOS kernel subsystem architecture" width="700">
+</p>
+
 ## Screenshots
 
 ### Home Screen
@@ -100,6 +114,12 @@ WatchOS-Bare-Metal/
 ├── build.sh
 ├── makefile
 ├── ARCHITECTURE.md
+├── architecture_phase_1.jpg
+├── architecture_phase_2.jpg
+├── screenshots-home.png
+├── screenshots-system-time.png
+├── screenshots-snake.png
+├── screenshots-system-info.png
 └── readme.md
 ```
 
